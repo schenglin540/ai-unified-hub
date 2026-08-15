@@ -1,0 +1,72 @@
+name: Bug report
+description: Report a reproducible problem without including credentials.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: "Never paste API keys, Authorization headers, tokens, private prompts, private responses, diagnostics, or unredacted logs. Replace sensitive values with `YOUR_API_KEY` or `[REDACTED]`."
+  - type: input
+    id: environment
+    attributes:
+      label: App version and environment
+      description: Include the app version or commit, installation method, and any relevant local configuration without secrets.
+      placeholder: "v1.0.0, pnpm dev"
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser
+      placeholder: "Chrome 136"
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: "macOS 15, Windows 11, Ubuntu 24.04"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Safe steps to reproduce
+      description: List the smallest sequence of safe, credential-free steps that reproduces the issue.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: input
+    id: provider-model
+    attributes:
+      label: Provider and model
+      description: Name the compatible Provider and model only. Do not include endpoint credentials or private URLs.
+      placeholder: "OpenAI-compatible Provider / model-id"
+  - type: textarea
+    id: logs
+    attributes:
+      label: Sanitized logs or diagnostics
+      description: Remove keys, Authorization values, private prompts, response content, cookies, and personal data before attaching output.
+      render: text
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots or recordings
+      description: Redact API keys, headers, prompts, response content, and other private data before uploading.
+  - type: checkboxes
+    id: security
+    attributes:
+      label: Security confirmation
+      options:
+        - label: I removed API keys, tokens, Authorization headers, private data, and unredacted request/response content.
+          required: true

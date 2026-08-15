@@ -1,0 +1,14 @@
+/** 精密工作台风格契约：比较运行只保留 Prompt、Provider 元数据、响应文本、指标和安全错误；绝不保存密钥或授权头。 */
+import type { Message, ProviderError, RequestMetrics, RequestStatus } from "./types";
+
+export const MAX_COMPARE_TARGETS = 3;
+export type CompareStatus = Extract<RequestStatus, "idle" | "sending" | "streaming" | "completed" | "failed" | "aborted" | "retrying"> | "queued";
+export interface CompareTarget { id: string; providerId: string; providerName: string; model: string; displayName: string; inputPricePerMillion?: number; outputPricePerMillion?: number; }
+export interface CompareParameters { temperature: number; maxTokens: number; stream: boolean; }
+export interface ComparePrompt { messages: Message[]; parameters: CompareParameters; }
+export interface CompareResult { targetId: string; providerId: string; providerName: string; model: string; displayName: string; status: CompareStatus; content: string; httpStatus?: number; headers?: Record<string, string>; metrics: RequestMetrics; error?: ProviderError; startedAt?: string; completedAt?: string; }
+export interface SavedComparison { id: string; name: string; createdAt: string; updatedAt: string; prompt: ComparePrompt; targets: CompareTarget[]; results: CompareResult[]; }
+export type BenchmarkRun = SavedComparison;
+export interface CompareSummary { fastestTtft?: { targetId: string; value: number }; fastestLatency?: { targetId: string; value: number }; lowestCost?: { targetId: string; value: number }; lowestOutputTokens?: { targetId: string; value: number }; }
+export const safeCompareHeaders = (headers?: Record<string, string>) => Object.fromEntries(Object.entries(headers || {}).filter(([key]) => !/^(authorization|x-api-key|api-key|api_key|x-auth-token|set-cookie)$/i.test(key)));
+export const summaryFor = (results: CompareResult[]): CompareSummary => { const completed = results.filter((result) => result.status === "completed"); const minimum = (key: "ttftMs" | "latencyMs" | "estimatedCost", extractor: (result: CompareResult) => number | undefined) => { const candidates = completed.map((result) => ({ targetId: result.targetId, value: extractor(result) })).filter((item): item is { targetId: string; value: number } => typeof item.value === "number"); return candidates.length ? candidates.reduce((best, item) => item.value < best.value ? item : best) : undefined; }; const output = completed.map((result) => ({ targetId: result.targetId, value: result.metrics.usage?.outputTokens })).filter((item): item is { targetId: string; value: number } => typeof item.value === "number"); return { fastestTtft: minimum("ttftMs", (result) => result.metrics.ttftMs), fastestLatency: minimum("latencyMs", (result) => result.metrics.latencyMs), lowestCost: minimum("estimatedCost", (result) => result.metrics.estimatedCost), lowestOutputTokens: output.length ? output.reduce((best, item) => item.value < best.value ? item : best) : undefined }; };

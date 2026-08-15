@@ -1,0 +1,22 @@
+/* 精密工作台 RC 风格契约：持久表面作为连通仪器托盘，轨迹节点作为状态语言；浮层与小控件保留独立圆角。 */
+@layer components {
+  .panel { border-radius: 4px; box-shadow: none; }
+  .metric-card { border-radius: 4px; box-shadow: none; }
+  .eyebrow, .panel-heading .eyebrow { font-family: "IBM Plex Mono", monospace; letter-spacing: .12em; }
+  .nav-item-active { position: relative; }
+  .nav-item-active::after { position: absolute; right: 8px; top: 50%; height: 6px; width: 6px; transform: translateY(-50%); border: 1px solid var(--primary); border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 10%, transparent); content: ""; }
+  .page-canvas > .page-header + section { gap: 0 !important; overflow: hidden; border: 1px solid var(--border); border-radius: 4px; background: var(--card); }
+  .page-canvas > .page-header + section .metric-card { border: 0; border-right: 1px solid var(--border); border-radius: 0; background: transparent; }
+  .page-canvas > .page-header + section .metric-card:last-child { border-right: 0; }
+  .settings-grid { gap: 0 !important; overflow: hidden; border: 1px solid var(--border); border-radius: 4px; background: var(--card); }
+  .settings-grid > .panel { border: 0; border-radius: 0; box-shadow: none; }
+  .settings-grid > .panel:nth-child(odd) { border-right: 1px solid var(--border); }
+  .settings-grid > .panel:nth-child(-n + 2) { border-bottom: 1px solid var(--border); }
+  @media (max-width: 860px) {
+    .page-canvas > .page-header + section .metric-card { border-right: 0; border-bottom: 1px solid var(--border); }
+    .page-canvas > .page-header + section .metric-card:last-child { border-bottom: 0; }
+    .settings-grid > .panel:nth-child(odd) { border-right: 0; }
+    .settings-grid > .panel:nth-child(-n + 2) { border-bottom: 1px solid var(--border); }
+    .settings-grid > .panel:last-child { border-bottom: 0; }
+  }
+}

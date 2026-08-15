@@ -1,0 +1,29 @@
+name: Feature request
+description: Propose a focused enhancement to the local-first Developer Tool.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: "Describe the user problem, not a bundled implementation. Never include API keys, private prompts, private responses, credentials, or other sensitive data."
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed approach
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: checkboxes
+    id: boundaries
+    attributes:
+      label: Boundary check
+      options:
+        - label: This proposal does not require a shared cloud API-key store by default.
+        - label: This proposal does not include secrets or private request content.
+        - label: This proposal preserves the Local-first boundary or clearly explains any requested trade-off.

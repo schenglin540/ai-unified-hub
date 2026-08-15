@@ -1,0 +1,11 @@
+/** 精密工作台风格契约：Diagnostics 只持久化脱敏的错误事实、原因与行动建议；从不存储密钥、授权值或完整敏感头。 */
+import type { ErrorCategory, ProviderError } from "./types";
+
+export type DiagnosticSource = "playground" | "compare" | "provider-test" | "history";
+export interface DiagnosticContext { providerId?: string; providerName?: string; model?: string; endpoint?: string; requestId?: string; httpStatus?: number; responseCode?: string; headers?: Record<string, string>; }
+export interface DiagnosticRecord { id: string; createdAt: string; source: DiagnosticSource; category: ErrorCategory; title: string; status: "failed" | "aborted" | "warning"; retryable: boolean; error: ProviderError; context: DiagnosticContext; requestId?: string; }
+export interface ProviderHealth { providerId: string; providerName: string; status: "connected" | "failed" | "unknown"; lastCheckedAt?: string; latencyMs?: number; endpoint: string; lastDiagnosticId?: string; }
+export const sensitiveDiagnosticKey = /^(authorization|proxy-authorization|cookie|set-cookie|x-api-key|api-key|api_key|x-auth-token)$/i;
+export const safeDiagnosticHeaders = (headers?: Record<string, string>) => Object.fromEntries(Object.entries(headers || {}).map(([key, value]) => [key, sensitiveDiagnosticKey.test(key) ? "[redacted]" : String(value).slice(0, 500)]));
+export const sanitizeText = (value?: string) => (value || "").replace(/Bearer\s+[\w.-]+/gi, "Bearer [redacted]").replace(/sk-[\w-]+/gi, "sk-xxxx").replace(/(api[_-]?key|secret)\s*[:=]\s*[^\s,;]+/gi, "$1=[redacted]").slice(0, 2000);
+export const diagnosticReport = (record: DiagnosticRecord) => ({ id: record.id, timestamp: record.createdAt, source: record.source, category: record.category, title: record.title, status: record.status, retryable: record.retryable, provider: record.context.providerName || "N/A", model: record.context.model || "N/A", endpoint: record.context.endpoint || "N/A", requestId: record.context.requestId || "N/A", httpStatus: record.context.httpStatus ?? record.error.status ?? "N/A", whatHappened: sanitizeText(record.error.description), possibleCauses: record.error.causes.map(sanitizeText), recommendedActions: record.error.actions.map(sanitizeText), technicalDetails: { responseCode: sanitizeText(record.context.responseCode), headers: safeDiagnosticHeaders(record.context.headers), message: sanitizeText(record.error.message) } });
